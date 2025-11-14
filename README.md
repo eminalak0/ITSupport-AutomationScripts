@@ -46,6 +46,7 @@ Automates routine disk cleanup tasks and generates a report.
 
 
 
+
 ## SoftwareInventoryCheck.ps1
 Generates a detailed software inventory and flags outdated applications.
 
