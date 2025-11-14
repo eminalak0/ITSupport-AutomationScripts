@@ -1,86 +1,42 @@
-# ITSupport-Automation.ps1
+# SoftwareInventoryCheck.ps1
 # Author: Emin Alakbarli
-# Purpose: Comprehensive IT Support automation script
+# Purpose: Generate a detailed inventory of installed software and check for updates
 
 $Date = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 $ComputerName = $env:COMPUTERNAME
+$ReportPath = "$env:USERPROFILE\Desktop\SoftwareInventoryReport.html"
 
-# Initialize report
-$Report = "<html><head><title>IT Support Report - $ComputerName</title></head><body>"
-$Report += "<h2>IT Support Report</h2>"
+# Initialize HTML report
+$Report = "<html><head><title>Software Inventory - $ComputerName</title></head><body>"
+$Report += "<h2>Software Inventory Report</h2>"
 $Report += "<p>Date: $Date<br>Computer: $ComputerName</p>"
+$Report += "<table border='1' cellspacing='0' cellpadding='5'><tr><th>Software Name</th><th>Version</th><th>Install Date</th><th>Status</th></tr>"
 
-# -----------------------------
-# SYSTEM HEALTH
-# -----------------------------
-$CPU = Get-WmiObject Win32_Processor | Measure-Object -Property LoadPercentage -Average | Select-Object -ExpandProperty Average
-$Memory = Get-WmiObject Win32_OperatingSystem
-$TotalRAM = [math]::round($Memory.TotalVisibleMemorySize/1MB,2)
-$FreeRAM = [math]::round($Memory.FreePhysicalMemory/1MB,2)
-$UsedRAM = [math]::round($TotalRAM - $FreeRAM,2)
+# Query installed software from registry
+$SoftwarePaths = @(
+    "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
+    "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
+)
 
-$Report += "<h3>System Health</h3>"
-$Report += "<ul>"
-$Report += "<li>CPU Usage: $CPU%</li>"
-$Report += "<li>RAM Usage: $UsedRAM GB / $TotalRAM GB</li>"
+foreach ($Path in $SoftwarePaths) {
+    Get-ItemProperty $Path -ErrorAction SilentlyContinue | ForEach-Object {
+        $Name = $_.DisplayName
+        $Version = $_.DisplayVersion
+        $InstallDate = $_.InstallDate
 
-$Drives = Get-WmiObject Win32_LogicalDisk -Filter "DriveType=3"
-foreach ($Drive in $Drives) {
-    $FreeGB = [math]::round($Drive.FreeSpace/1GB,2)
-    $TotalGB = [math]::round($Drive.Size/1GB,2)
-    $Status = if (($FreeGB/$TotalGB) -lt 0.10) { "<span style='color:red'>Low Space</span>" } else { "OK" }
-    $Report += "<li>Drive $($Drive.DeviceID): $FreeGB GB free of $TotalGB GB - $Status</li>"
-}
-$Report += "</ul>"
-
-# -----------------------------
-# NETWORK CHECK
-# -----------------------------
-$Hosts = @("google.com", "8.8.8.8")
-$Report += "<h3>Network Connectivity</h3><ul>"
-foreach ($host in $Hosts) {
-    $Status = if (Test-Connection -ComputerName $host -Count 2 -Quiet) {"Online"} else {"Offline"}
-    $Report += "<li>$host : $Status</li>"
-}
-$Report += "</ul>"
-
-# -----------------------------
-# SERVICE CHECK
-# -----------------------------
-$Services = @("Spooler", "wuauserv") # Print Spooler & Windows Update
-$Report += "<h3>Service Status</h3><ul>"
-foreach ($service in $Services) {
-    $svc = Get-Service -Name $service -ErrorAction SilentlyContinue
-    if ($svc) {
-        $color = if ($svc.Status -eq "Running") {"green"} else {"red"}
-        $Report += "<li>$($svc.DisplayName): <span style='color:$color'>$($svc.Status)</span></li>"
-    } else {
-        $Report += "<li>$service: Not Found</li>"
+        if ($Name) {
+            # Simple version check example: mark if version < 1.0.0 as outdated (placeholder logic)
+            $Status = if ($Version -and $Version -lt "1.0.0") {"<span style='color:red'>Outdated</span>"} else {"Up-to-date"}
+            
+            $Report += "<tr><td>$Name</td><td>$Version</td><td>$InstallDate</td><td>$Status</td></tr>"
+        }
     }
 }
-$Report += "</ul>"
 
-# -----------------------------
-# DISK CLEANUP
-# -----------------------------
-$TempPaths = @("$env:LOCALAPPDATA\Temp", "$env:SystemRoot\Temp")
-foreach ($Path in $TempPaths) {
-    if (Test-Path $Path) {
-        Get-ChildItem -Path $Path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
-    }
-}
-# Empty Recycle Bin
-$Shell = New-Object -ComObject Shell.Application
-$RecycleBin = $Shell.Namespace(0xA)
-$RecycleBin.Items() | ForEach-Object { Remove-Item $_.Path -Recurse -Force -ErrorAction SilentlyContinue }
-
-$Report += "<h3>Maintenance</h3><p>Temporary files and Recycle Bin cleaned.</p>"
-
-# -----------------------------
-# SAVE REPORT
-# -----------------------------
+$Report += "</table>"
 $Report += "</body></html>"
-$ReportPath = "$env:USERPROFILE\Desktop\ITSupportReport.html"
+
+# Save HTML report
 $Report | Out-File -FilePath $ReportPath -Encoding UTF8
 
-Write-Host "IT Support report saved to $ReportPath"
+Write-Host "Software inventory report saved to $ReportPath"
