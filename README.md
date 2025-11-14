@@ -15,6 +15,7 @@ This PowerShell script performs an automated health check of a Windows system, i
 4. Report will be saved to Desktop as `SystemHealthReport.txt`.
 
 
+
 ## NetworkServiceMonitor.ps1
 Monitors network connectivity to key hosts and checks important Windows services.
 
@@ -42,3 +43,21 @@ Automates routine disk cleanup tasks and generates a report.
 3. Run the script:
 ```powershell
 .\DiskMaintenance.ps1
+
+
+
+## SoftwareInventoryCheck.ps1
+Generates a detailed software inventory and flags outdated applications.
+
+**What it does:**
+- Scans all installed software on a Windows system
+- Lists version numbers and install dates
+- Flags software that may be outdated
+- Generates an HTML report on Desktop
+
+**Usage:**
+1. Open PowerShell.
+2. Navigate to the `Scripts/` folder.
+3. Run:
+```powershell
+.\SoftwareInventoryCheck.ps1
