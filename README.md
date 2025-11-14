@@ -47,18 +47,25 @@ Automates routine disk cleanup tasks and generates a report.
 
 
 
-## SoftwareInventoryCheck.ps1
-Generates a detailed software inventory and flags outdated applications.
+
+## **SoftwareInventoryCheck.ps1**
+Automatically scans a Windows system for all installed software, records version numbers and install dates, and flags potentially outdated applications. Generates a professional HTML report for auditing or review.
 
 **What it does:**
-- Scans all installed software on a Windows system
-- Lists version numbers and install dates
-- Flags software that may be outdated
-- Generates an HTML report on Desktop
+- Scans all installed software on the system  
+- Lists software name, version, and install date  
+- Flags software that may be outdated (placeholder logic)  
+- Generates an HTML report saved on the Desktop  
 
 **Usage:**
-1. Open PowerShell.
-2. Navigate to the `Scripts/` folder.
-3. Run:
+1. Open PowerShell.  
+2. Navigate to the `Scripts/` folder.  
+3. Run the script:
+
 ```powershell
 .\SoftwareInventoryCheck.ps1
+.\SoftwareInventoryCheck.ps1
+
+
+
+
