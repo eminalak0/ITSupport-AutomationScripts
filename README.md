@@ -24,3 +24,21 @@ Monitors network connectivity to key hosts and checks important Windows services
 3. Run the script:
    ```powershell
    .\NetworkServiceMonitor.ps1
+
+
+
+## DiskMaintenance.ps1
+Automates routine disk cleanup tasks and generates a report.
+
+**What it does:**
+- Checks all drives for free space and alerts if low
+- Cleans temporary folders
+- Empties the Recycle Bin
+- Generates a report saved to Desktop
+
+**Usage:**
+1. Open PowerShell.
+2. Navigate to the folder containing the script.
+3. Run the script:
+```powershell
+.\DiskMaintenance.ps1
